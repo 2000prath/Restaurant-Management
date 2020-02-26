@@ -1,0 +1,203 @@
+<html><head>
+        <link rel="stylesheet" href='{{ url_for('static', filename='css/bootstrap.css') }}'>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+        <script>
+          $(document).ready(function(){
+              $(".toast").toast();
+          });
+          </script>
+          <style>
+            .bs-example{
+              margin: 10px;
+            }
+        </style>
+
+<script>        
+
+          function callme(){
+        
+        
+          var dish =document.getElementById("dish");
+          var quantity =document.getElementById("quantity");
+          var customization =document.getElementById("customization");
+          
+        
+
+          console.log("reache1");
+          var entry={
+           dish:dish.value,
+           quantity:quantity.value,
+           customization:customization.value
+
+          };
+       
+          console.log(entry);
+          
+          fetch(`${window.origin}/manager`,{
+            method:  "POST",
+            credentials: "include",
+            body: JSON.stringify(entry),
+            cache: "no-cache",
+            headers : new Headers({
+              "content-type": "application/json"
+            })
+          })
+          .then(function(response){
+            
+            
+            response.json().then(function(data){
+             console.log(data);
+
+             if(response.status != 200){
+              console.log(`response status is 200 : ${response.status}`);
+              return ;
+            }
+           }) 
+          })
+    
+      };
+
+
+                function cancel(i){
+                 
+                  var entry={
+                     id:i,
+                   };
+                  
+                  fetch(`${window.origin}/delete`,{
+                    method:  "POST",
+                    credentials: "include",
+                    body: JSON.stringify(entry),
+                    cache: "no-cache",
+                    headers : new Headers({
+                      "content-type": "application/json"
+                    })
+                  })
+                  .then(function(response){
+                    
+                    response.json().then(function(data){
+                    console.log(data);
+
+                    if(response.status == 200){
+									  console.log(`response status is 200 : ${response.status}`);
+                    var idis="#card"+i;
+                    console.log(idis)
+
+                    $(idis).css("display", "none");
+                    };
+
+                  }) 
+                  })
+
+
+                }
+
+
+                setInterval(function(){
+                
+                  fetch(`${window.origin}/fetch_orders`,{
+                    method:  "GET",
+                    credentials: "include",
+                   
+                    cache: "no-cache",
+                    headers : new Headers({
+                      "content-type": "application/json"
+                    })
+                  })
+        .then(function(response){
+          
+          response.json().then(function(data){
+          console.log(data);
+          
+          
+          if(response.status == 200){
+            console.log(`response status is 200 : ${response.status}`);
+             str=""
+              data.forEach(function(data) {
+                  str+="<div class='card' style='text-align: left; padding:1% ;margin:5px; align-items: center; display:' id='card"+data.id+"'> <span class='badge badge-info'>ID</span>"+data.id+"<br>";
+                  str+="<span class='badge badge-info'>DISH</span>"+data.dish+"<br>";
+                  str+="<span class='badge badge-info'>QUANTITY</span>"+data.quantity+" <br>";
+                  str+="<button class='btn-danger' onclick='cancel("+data.id+")'>cancel order</button></div></div>" 
+                  
+                });
+                document.getElementById("infobody").innerHTML=str
+               
+               
+                
+                
+
+
+
+            return ;
+          }
+          
+         }) 
+        })
+
+                }, 5000);
+
+</script>
+</head>
+    <body>
+      <div id="data_tbl">
+
+      </div>
+        <center> 
+            <div class="column">
+                <form >
+                    <div class="card" style="width: 500;" > 
+
+                        <div class="card-body">
+                          <h5 class="card-title">Dish Name</h5>
+                            <input type="text" name=dish class="form-control col-md-10" id="dish" placeholder="Required Dish Name" required>
+                        </div>
+
+                        <div class="card-body">
+                            <h5 class="card-title">Quantity</h5>
+                            <input type="number" name=quantity class="form-control col-md-10" id="quantity" placeholder="Required Quantity" required>
+                        </div>
+
+                        <div class="card-body">
+                                <h5 class="card-title">Customization</h5>
+                                <textarea name=Customization class="form-control col-md-10" id="customization" placeholder="Optional Ex: less oil,spicy etc."> </textarea>
+                        </div>
+
+                        
+
+
+                        <button class="btn btn-primary " onclick="callme()">Submit</button>
+                        </div>
+                        
+                    </div>
+                   
+
+
+                </form><hr>
+              <div class="card">
+                    
+                        <div class="card-header">
+                          Orders
+                        </div>
+                        <div class="card-body row" id="infobody" style="margin;:5%">
+                         
+                          
+                             first order 
+                            
+                         
+                        
+                        </div>
+                </div>
+              </div>
+                
+                </div>
+              </div>
+      </div>
+
+
+
+            </div>
+        </center>
+    </body>
+</html>
